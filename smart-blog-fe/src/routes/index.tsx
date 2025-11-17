@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import { lazy, Suspense, type ReactNode } from "react"
 import { useAuth } from "../context/authContext"
+import Layout from "../components/Layout"
 
 const Home = lazy(() => import("../pages/Home"))
 const Login = lazy(() => import("../pages/Login"))
@@ -8,9 +9,9 @@ const Register = lazy(() => import("../pages/Register"))
 const Welcome = lazy(() => import("../pages/Welcome"))
 const Post = lazy(() => import("../pages/Post"))
 
-type RequireAuthTypes = { children: ReactNode; mahen:string }
+type RequireAuthTypes = { children: ReactNode; kalana:string }
 
-const RequireAuth = ({ children, mahen }: RequireAuthTypes) => {
+const RequireAuth = ({ children, kalana }: RequireAuthTypes) => {
   const { user, loading } = useAuth()
   if (loading) {
     return <div>User Loading...</div>
@@ -28,11 +29,13 @@ export default function Router() {
         <Routes>
           {/* <RequireAuth mahen=""><div></div></RequireAuth> */}
           {/* <Route path="/home" element={<RequireAuth><Home /></RequireAuth>} /> */}
-          <Route path="/home" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/" element={<Welcome />} />
-          <Route path="/post" element={<Post />} />
+          <Route element={<RequireAuth kalana=""><Layout /></RequireAuth>}>
+            <Route path="/home" element={<Home />} />
+            <Route path="/post" element={<Post />} />
+          </Route>
         </Routes>
       </Suspense>
     </BrowserRouter>
