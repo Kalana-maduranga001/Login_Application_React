@@ -8,10 +8,11 @@ const Login = lazy(() => import("../pages/Login"))
 const Register = lazy(() => import("../pages/Register"))
 const Welcome = lazy(() => import("../pages/Welcome"))
 const Post = lazy(() => import("../pages/Post"))
+const MyPost = lazy(() => import("../pages/MyPost"))
 
-type RequireAuthTypes = { children: ReactNode; kalana:string }
+type RequireAuthTypes = { children: ReactNode; mahen:string }
 
-const RequireAuth = ({ children, kalana }: RequireAuthTypes) => {
+const RequireAuth = ({ children, mahen }: RequireAuthTypes) => {
   const { user, loading } = useAuth()
   if (loading) {
     return <div>User Loading...</div>
@@ -32,9 +33,10 @@ export default function Router() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/" element={<Welcome />} />
-          <Route element={<RequireAuth kalana=""><Layout /></RequireAuth>}>
+          <Route element={<RequireAuth mahen=""><Layout /></RequireAuth>}>
             <Route path="/home" element={<Home />} />
             <Route path="/post" element={<Post />} />
+            <Route path="/mypost" element={<MyPost/>}></Route>
           </Route>
         </Routes>
       </Suspense>

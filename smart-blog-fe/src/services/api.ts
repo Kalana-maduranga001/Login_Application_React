@@ -1,4 +1,5 @@
 import axios, { AxiosError } from 'axios';
+// import { config } from 'process';
 import { refreshTokens } from './auth';
 
 const api = axios.create({
@@ -23,41 +24,37 @@ api.interceptors.request.use((config) => {
 });
 
 api.interceptors.response.use(
-    (response) =>{
+    (response) => {
         return response
     },
     async (error: AxiosError) => {
-        const originalRequest = error.config as any;
+        const originalRequest:any = error.config;
         const isPublic = PUBLIC_ENDPOINTS.some((url) =>
-             originalRequest?.url?.includes(url)
-    )
-        if(error.response?.status === 401 && !isPublic && originalRequest && !originalRequest._retry){
+            originalRequest.url?.includes(url)
+        )
+
+        if (error.response?.status == 401 && !isPublic && !originalRequest._retry) {
             originalRequest._retry = true;
-            try{
-                const refreshToken = await localStorage.getItem("refreshToken")
-                if(!refreshToken){
-                    throw new Error("No refresh token available!")
+            try {
+                const refreshToken = localStorage.getItem("refreshToken")
+                if (!refreshToken) {
+                    throw new Error("No refresh token available");
                 }
-
                 const res = await refreshTokens(refreshToken)
-                localStorage.setItem("accessToken", res.data.accessToken)
+                localStorage.setItem("accessToken", res.accessToken)
 
-                originalRequest.headers.Authorization = `Bearer ${res.data.accessToken}`
+                originalRequest.headers.Authorization = `Bearer ${res.accessToken}`
                 return axios(originalRequest)
-
-            }catch(err){
-                localStorage.removeItem("accessToken")
-                localStorage.removeItem("refreshToken")
-                window.location.href = "/login"
-                console.error("Refresh token is invalid or expired", err);
-                return Promise.reject(err);
+            } catch (error) {
+                localStorage.removeItem("accessToken");
+                localStorage.removeItem("refreshToken");
+                window.location.href = "/login";
+                console.error("Failed to refresh tokens:", error);
+                return Promise.reject(error)
             }
         }
-
         return Promise.reject(error)
     }
 )
-
-// api.interceptors.response.use()
 
 export default api
